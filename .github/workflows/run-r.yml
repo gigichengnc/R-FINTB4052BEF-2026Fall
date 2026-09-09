@@ -1,0 +1,37 @@
+name: Run R analysis
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "R/**"
+      - "data/**"
+      - ".github/workflows/run-r.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  run-r:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+
+      - name: Run analysis
+        run: Rscript R/analysis.R
+
+      - name: List generated outputs
+        run: find output -maxdepth 2 -type f -print
+
+      - name: Upload R outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: R-results
+          path: output/
+          if-no-files-found: error
+          retention-days: 30
